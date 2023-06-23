@@ -15,6 +15,7 @@ class _DisneySliverAppBarState extends State<DisneySliverAppBar> {
   Widget build(BuildContext context) {
     return SliverAppBar(
       elevation: 0,
+      primary: false,
       leading: IconButton(
         icon: const Icon(
           Icons.arrow_back_ios_rounded,
