@@ -4,6 +4,8 @@ import 'package:disney_challenge/screens/select_guests/widgets/user_list.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/user_list_sliver_app_bar.dart';
 import 'package:disney_challenge/widgets/layout/disney_sliver_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 
 class SelectGuestsScreen extends StatefulWidget {
   final List<Guest> guests;
@@ -17,11 +19,12 @@ class SelectGuestsScreen extends StatefulWidget {
 class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
   final List<Guest> guestsWithReservation = [];
   final List<Guest> guestsWithoutReservation = [];
-  late ScrollController controller;
+  final GlobalKey bottomListViewKey = GlobalKey();
+  bool firstPinned = false;
+  final ScrollController controller = ScrollController();
 
   @override
   void initState() {
-    super.initState();
     List<Guest> sortableList = [...widget.guests];
     for (var guest in sortableList) {
       if (guest.hasReservation) {
@@ -30,12 +33,33 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
         guestsWithoutReservation.add(guest);
       }
     }
+
+    controller.addListener(() {
+      scrollListener();
+    });
+    super.initState();
   }
 
-  @override
-  void didChangeDependencies() {
-    controller = ScrollController(initialScrollOffset: MediaQuery.of(context).padding.top);
-    super.didChangeDependencies();
+  void scrollListener(){
+    var keyContext = bottomListViewKey.currentContext;
+    if (keyContext != null) {
+      final sliverList = keyContext.findRenderObject() as RenderSliverList;
+      final child = sliverList.firstChild;
+      final box = child!.localToGlobal(Offset.zero);
+      if (box.dy < 150) {
+        if (firstPinned != false) {
+          setState(() {
+            firstPinned = false;
+          });
+        }
+      } else {
+        if (firstPinned != true) {
+          setState(() {
+            firstPinned = true;
+          });
+        }
+      }
+    }
   }
 
   @override
@@ -50,10 +74,17 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
             controller: controller,
             slivers: [
               const DisneySliverAppBar(title: selectGuests),
-              const UserSliverListAppBar(title: theseGuestsHaveReservations),
-              UserListWidget(guests: guestsWithReservation, ),
-              const UserSliverListAppBar(title: theseGuestsNeedReservations),
-              UserListWidget(guests: guestsWithoutReservation,)
+              UserSliverListAppBar(
+                title: theseGuestsHaveReservations,
+                pinned: firstPinned,
+              ),
+              UserListWidget(
+                guests: guestsWithReservation,
+              ),
+              UserSliverListAppBar(
+                  title: theseGuestsNeedReservations, pinned: !firstPinned),
+              UserListWidget(
+                  guests: guestsWithoutReservation, key: bottomListViewKey)
             ],
           ),
         ),

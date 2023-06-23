@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 
 class UserSliverListAppBar extends StatefulWidget {
   final String title;
+  final bool pinned;
 
-  const UserSliverListAppBar({super.key, required this.title});
+  const UserSliverListAppBar({super.key, required this.title, required this.pinned});
 
   @override
   State<UserSliverListAppBar> createState() => _UserSliverListAppBarState();
@@ -16,7 +17,7 @@ class _UserSliverListAppBarState extends State<UserSliverListAppBar> {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      pinned: true,
+      pinned: widget.pinned,
       primary: false,
       centerTitle: false,
       title: Text(widget.title,
