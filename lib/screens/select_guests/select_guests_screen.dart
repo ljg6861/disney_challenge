@@ -1,10 +1,8 @@
-import 'package:disney_challenge/constants/strings.dart';
+import 'package:disney_challenge/screens/select_guests/bloc/guest_data_bloc.dart';
 import 'package:disney_challenge/screens/select_guests/models/guest.dart';
 import 'package:disney_challenge/screens/select_guests/models/guest_data.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/continue_button/continue_button.dart';
-import 'package:disney_challenge/screens/select_guests/widgets/continue_button/continue_button_facade.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/continue_button/disabled_continue_button_manager.dart';
-import 'package:disney_challenge/screens/select_guests/widgets/continue_button/enabled_continue_button_manager.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/user_list.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/user_list_sliver_app_bar.dart';
 import 'package:disney_challenge/widgets/layout/disney_sliver_app_bar.dart';
@@ -14,36 +12,24 @@ import 'package:flutter/rendering.dart';
 class SelectGuestsScreen extends StatefulWidget {
   final List<Guest> guests;
 
-  const SelectGuestsScreen({super.key, required this.guests});
+  const SelectGuestsScreen({Key? key, required this.guests}) : super(key: key);
 
   @override
   State<SelectGuestsScreen> createState() => _SelectGuestsScreenState();
 }
 
 class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
-  late final ValueNotifier<GuestData> guestDataNotifier;
+  late final SelectGuestsBloc _bloc;
   final GlobalKey bottomListViewKey = GlobalKey();
-  bool firstPinned = false;
+  bool firstPinned = true;
   final ScrollController controller = ScrollController();
 
   @override
   void initState() {
-    List<Guest> guestsWithReservation = [];
-    List<Guest> guestsWithoutReservation = [];
+    _bloc = SelectGuestsBloc(widget.guests);
 
-    for (var guest in widget.guests) {
-      if (guest.hasReservation) {
-        guestsWithReservation.add(guest);
-      } else {
-        guestsWithoutReservation.add(guest);
-      }
-    }
+    controller.addListener(scrollListener);
 
-    guestDataNotifier = ValueNotifier(GuestData(guestsWithReservation, guestsWithoutReservation));
-
-    controller.addListener(() {
-      scrollListener();
-    });
     super.initState();
   }
 
@@ -74,37 +60,30 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
 
   @override
   void dispose() {
-    guestDataNotifier.dispose();
+    _bloc.dispose();
+    controller.removeListener(scrollListener);
     super.dispose();
   }
 
-  ContinueButtonFacade getButtonManager(GuestData data) {
-    List<Guest> selectedGuestsWithReservations =
-        data.guestsWithReservation.where((element) => element.isSelected).toList();
-    List<Guest> selectedGuestsWithoutReservations =
-        data.guestsWithoutReservation.where((element) => element.isSelected).toList();
-
-    if (selectedGuestsWithReservations.isNotEmpty || selectedGuestsWithoutReservations.isNotEmpty) {
-      return EnabledContinueButtonManager();
-    } else {
-      return DisabledContinueButtonManager();
-    }
+  void updateGuestSelection(Guest guest) {
+    _bloc.updateGuestSelection(guest);
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Guest> guestsWithReservation = guestDataNotifier.value.guestsWithReservation;
-    List<Guest> guestsWithOutReservation = guestDataNotifier.value.guestsWithoutReservation;
-
     return Scaffold(
       backgroundColor: Colors.white,
       persistentFooterButtons: [
-        ValueListenableBuilder<GuestData>(
-          valueListenable: guestDataNotifier,
-          builder: (context, guestData, child) {
-            return ContinueButton(
-              manager: getButtonManager(guestData),
-            );
+        StreamBuilder<GuestData>(
+          stream: _bloc.guestDataStream,
+          builder: (context, guestDataSnapshot) {
+            if (guestDataSnapshot.hasData) {
+              return ContinueButton(
+                manager: _bloc.getButtonManager(),
+              );
+            } else {
+              return ContinueButton(manager: DisabledContinueButtonManager());
+            }
           },
         ),
       ],
@@ -115,17 +94,44 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
           child: CustomScrollView(
             controller: controller,
             slivers: [
-              const DisneySliverAppBar(title: selectGuests),
+              const DisneySliverAppBar(title: 'Select Guests'),
               UserSliverListAppBar(
-                title: theseGuestsHaveReservations,
+                title: 'Guests with Reservations',
                 pinned: firstPinned,
               ),
-              UserListWidget(
-                guests: guestsWithReservation,
-                onGuestListUpdated: () => guestsWithReservation.value = List.from(guestsWithReservation.value),
-              ),
-              UserSliverListAppBar(title: theseGuestsNeedReservations, pinned: !firstPinned),
-              UserListWidget(guests: guestsWithoutReservation, key: bottomListViewKey)
+              StreamBuilder<List<Guest>>(
+                  stream: _bloc.guestWithReservationStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return UserListWidget(
+                        guests: snapshot.data!,
+                        onGuestSelected: _bloc.updateGuestSelection,
+                      );
+                    } else {
+                      return UserListWidget(
+                        guests: [],
+                        onGuestSelected: (_){},
+                      );
+                    }
+                  }),
+              UserSliverListAppBar(
+                  title: 'Guests without Reservations', pinned: !firstPinned),
+              StreamBuilder<List<Guest>>(
+                  stream: _bloc.guestWithoutReservationStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return UserListWidget(
+                        key: bottomListViewKey,
+                        guests: snapshot.data!,
+                        onGuestSelected: _bloc.updateGuestSelection,
+                      );
+                    } else {
+                      return UserListWidget(
+                        guests: [],
+                        onGuestSelected: (_){},
+                      );
+                    }
+                  }),
             ],
           ),
         ),
