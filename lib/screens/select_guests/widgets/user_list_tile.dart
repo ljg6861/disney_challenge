@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 
 class UserListTile extends StatefulWidget {
   final Guest guest;
+  final Function(Guest) onGuestUpdated;
 
-  const UserListTile({super.key, required this.guest});
+  const UserListTile({super.key, required this.guest, required this.onGuestUpdated});
 
   @override
   State<UserListTile> createState() => _UserListTileState();
@@ -54,6 +55,8 @@ class _UserListTileState extends State<UserListTile> {
         setState(() {
           currentGuest.isSelected = !currentGuest.isSelected;
         });
+
+        widget.onGuestUpdated(currentGuest);
       },
     );
   }

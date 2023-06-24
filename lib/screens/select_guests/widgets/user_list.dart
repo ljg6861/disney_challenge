@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 
 class UserListWidget extends StatefulWidget {
   final List<Guest> guests;
+  final Function(Guest) onGuestListUpdated;
 
-  const UserListWidget({super.key, required this.guests});
+  const UserListWidget({super.key, required this.guests, required this.onGuestListUpdated});
 
   @override
   State<UserListWidget> createState() => _UserListWidgetState();
@@ -19,7 +20,7 @@ class _UserListWidgetState extends State<UserListWidget> {
         delegate: SliverChildBuilderDelegate((context, index) {
       Guest currentGuest = widget.guests[index];
 
-      return UserListTile(guest: currentGuest);
+      return UserListTile(guest: currentGuest, onGuestUpdated: widget.onGuestListUpdated);
     }, childCount: widget.guests.length, ));
   }
 }
