@@ -53,7 +53,7 @@ class SelectGuestsBloc {
 
     if (selectedGuestsWithReservations.isNotEmpty ||
         selectedGuestsWithoutReservations.isNotEmpty) {
-      return EnabledContinueButtonManager();
+      return EnabledContinueButtonManager(guestData: _currentValue);
     } else {
       return DisabledContinueButtonManager();
     }

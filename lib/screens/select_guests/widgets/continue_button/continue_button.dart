@@ -20,7 +20,12 @@ class _ContinueButtonState extends State<ContinueButton> {
       child: TextButton(
         onPressed: widget.manager.onPressed,
         style: ButtonStyle(
-          backgroundColor: widget.manager.backgroundColor
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(22.0),
+              )
+          ),
+          backgroundColor: widget.manager.backgroundColor,
         ),
         child: const Text(
           continueText,

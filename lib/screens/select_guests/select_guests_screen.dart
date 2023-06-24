@@ -73,8 +73,10 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      persistentFooterButtons: [
-        StreamBuilder<GuestData>(
+      persistentFooterAlignment: AlignmentDirectional.center,
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 34, top: 16),
+        child: StreamBuilder<GuestData>(
           stream: _bloc.guestDataStream,
           builder: (context, guestDataSnapshot) {
             if (guestDataSnapshot.hasData) {
@@ -86,7 +88,7 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
             }
           },
         ),
-      ],
+      ),
       body: SafeArea(
         child: SizedBox(
           height: MediaQuery.of(context).size.height,
@@ -110,7 +112,7 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                     } else {
                       return UserListWidget(
                         guests: [],
-                        onGuestSelected: (_){},
+                        onGuestSelected: (_) {},
                       );
                     }
                   }),
@@ -128,7 +130,7 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                     } else {
                       return UserListWidget(
                         guests: [],
-                        onGuestSelected: (_){},
+                        onGuestSelected: (_) {},
                       );
                     }
                   }),
