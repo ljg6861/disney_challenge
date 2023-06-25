@@ -7,10 +7,7 @@ class EnabledContinueButtonManager implements ContinueButtonFacade{
   final GuestData guestData;
 
   EnabledContinueButtonManager({required this.guestData});
-
+  
   @override
   MaterialStateProperty<Color> get backgroundColor => MaterialStateProperty.all(disneyBlue);
-
-  @override
-  Function() get onPressed => (){};
 }

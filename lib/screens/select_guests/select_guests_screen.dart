@@ -3,6 +3,7 @@ import 'package:disney_challenge/screens/select_guests/models/guest.dart';
 import 'package:disney_challenge/screens/select_guests/models/guest_data.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/continue_button/continue_button.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/continue_button/disabled_continue_button_manager.dart';
+import 'package:disney_challenge/screens/select_guests/widgets/continue_button/enabled_continue_button_manager.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/user_list.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/user_list_sliver_app_bar.dart';
 import 'package:disney_challenge/widgets/layout/disney_sliver_app_bar.dart';
@@ -74,20 +75,31 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       persistentFooterAlignment: AlignmentDirectional.center,
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 34, top: 16),
-        child: StreamBuilder<GuestData>(
-          stream: _bloc.guestDataStream,
-          builder: (context, guestDataSnapshot) {
-            if (guestDataSnapshot.hasData) {
-              return ContinueButton(
-                manager: _bloc.getButtonManager(),
+      bottomNavigationBar: StreamBuilder<GuestData>(
+        stream: _bloc.guestDataStream,
+        builder: (context, guestDataSnapshot) {
+          if (guestDataSnapshot.hasData) {
+            var manager = _bloc.getButtonManager();
+
+            if (manager is DisabledContinueButtonManager) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 34, top: 16),
+                child: ContinueButton(manager: DisabledContinueButtonManager()),
               );
-            } else {
-              return ContinueButton(manager: DisabledContinueButtonManager());
             }
-          },
-        ),
+            return Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 34, top: 16),
+              child: ContinueButton(
+                manager: _bloc.getButtonManager(),
+              ),
+            );
+          } else {
+            return Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 34, top: 16),
+              child: ContinueButton(manager: DisabledContinueButtonManager()),
+            );
+          }
+        },
       ),
       body: SafeArea(
         child: SizedBox(
@@ -116,8 +128,7 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                       );
                     }
                   }),
-              UserSliverListAppBar(
-                  title: 'Guests without Reservations', pinned: !firstPinned),
+              UserSliverListAppBar(title: 'Guests without Reservations', pinned: !firstPinned),
               StreamBuilder<List<Guest>>(
                   stream: _bloc.guestWithoutReservationStream,
                   builder: (context, snapshot) {

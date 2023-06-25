@@ -7,5 +7,5 @@ class DisabledContinueButtonManager implements ContinueButtonFacade{
   MaterialStateProperty<Color> get backgroundColor => MaterialStateProperty.all(disneyDisabledBlue);
 
   @override
-  Function()? get onPressed => null;
+  Function(BuildContext)? get onPressed => null;
 }
