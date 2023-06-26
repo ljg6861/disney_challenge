@@ -20,6 +20,7 @@ class ContinueButton extends StatefulWidget {
 }
 
 class _ContinueButtonState extends State<ContinueButton> {
+
   void handlePress(BuildContext context) {
     var manager = widget.manager as EnabledContinueButtonManager;
 

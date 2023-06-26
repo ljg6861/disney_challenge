@@ -1,9 +1,9 @@
+import 'package:disney_challenge/constants/strings.dart';
 import 'package:disney_challenge/screens/select_guests/bloc/guest_data_bloc.dart';
 import 'package:disney_challenge/screens/select_guests/models/guest.dart';
 import 'package:disney_challenge/screens/select_guests/models/guest_data.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/continue_button/continue_button.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/continue_button/disabled_continue_button_manager.dart';
-import 'package:disney_challenge/screens/select_guests/widgets/continue_button/enabled_continue_button_manager.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/user_list.dart';
 import 'package:disney_challenge/screens/select_guests/widgets/user_list_sliver_app_bar.dart';
 import 'package:disney_challenge/widgets/layout/disney_sliver_app_bar.dart';
@@ -83,19 +83,23 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
 
             if (manager is DisabledContinueButtonManager) {
               return Padding(
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 34, top: 16),
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom + 34,
+                    top: 16),
                 child: ContinueButton(manager: DisabledContinueButtonManager()),
               );
             }
             return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 34, top: 16),
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom + 34, top: 16),
               child: ContinueButton(
                 manager: _bloc.getButtonManager(),
               ),
             );
           } else {
             return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 34, top: 16),
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom + 34, top: 16),
               child: ContinueButton(manager: DisabledContinueButtonManager()),
             );
           }
@@ -108,9 +112,9 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
           child: CustomScrollView(
             controller: controller,
             slivers: [
-              const DisneySliverAppBar(title: 'Select Guests'),
+              const DisneySliverAppBar(title: selectGuests),
               UserSliverListAppBar(
-                title: 'Guests with Reservations',
+                title: guestsWithReservations,
                 pinned: firstPinned,
               ),
               StreamBuilder<List<Guest>>(
@@ -123,12 +127,13 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                       );
                     } else {
                       return UserListWidget(
-                        guests: [],
+                        guests: const [],
                         onGuestSelected: (_) {},
                       );
                     }
                   }),
-              UserSliverListAppBar(title: 'Guests without Reservations', pinned: !firstPinned),
+              UserSliverListAppBar(
+                  title: guestsWithoutReservations, pinned: !firstPinned),
               StreamBuilder<List<Guest>>(
                   stream: _bloc.guestWithoutReservationStream,
                   builder: (context, snapshot) {
@@ -140,11 +145,41 @@ class _SelectGuestsScreenState extends State<SelectGuestsScreen> {
                       );
                     } else {
                       return UserListWidget(
-                        guests: [],
+                        guests: const [],
                         onGuestSelected: (_) {},
                       );
                     }
                   }),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          child: const Icon(
+                            Icons.info,
+                            color: Color(0xff132c44),
+                          )),
+                      const SizedBox(
+                        width: 6,
+                      ),
+                      const Flexible(
+                        child: Text(
+                          atLeastOneGuestLong,
+                          style:
+                              TextStyle(fontSize: 14, color: Color(0xff00233c)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
