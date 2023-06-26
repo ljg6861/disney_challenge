@@ -6,7 +6,8 @@ class UserListTile extends StatefulWidget {
   final Guest guest;
   final Function(Guest) onGuestSelected;
 
-  const UserListTile({super.key, required this.guest, required this.onGuestSelected});
+  const UserListTile(
+      {super.key, required this.guest, required this.onGuestSelected});
 
   @override
   State<UserListTile> createState() => _UserListTileState();
@@ -24,6 +25,9 @@ class _UserListTileState extends State<UserListTile> {
   @override
   Widget build(BuildContext context) {
     return TextButton(
+      style: ButtonStyle(
+          padding: MaterialStateProperty.all(
+              const EdgeInsets.symmetric(horizontal: 16))),
       child: Row(
         children: [
           SizedBox(
@@ -36,7 +40,8 @@ class _UserListTileState extends State<UserListTile> {
                     borderRadius: BorderRadius.circular(2.0),
                   ),
                   side: MaterialStateBorderSide.resolveWith(
-                    (states) => const BorderSide(width: 1.0, color: checkBoxOutlineColor),
+                    (states) => const BorderSide(
+                        width: 1.0, color: checkBoxOutlineColor),
                   ),
                   fillColor: MaterialStateProperty.all(disneyGreen),
                   onChanged: (_) {},
@@ -47,7 +52,10 @@ class _UserListTileState extends State<UserListTile> {
           ),
           Text(
             currentGuest.name,
-            style: const TextStyle(color: bodyTextColor, fontSize: 16, fontWeight: FontWeight.w400),
+            style: const TextStyle(
+                color: bodyTextColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w400),
           )
         ],
       ),
